@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="css/main.css">
+  <title>Чатик</title>
+</head>
+<body id="body">
+  <div class="section top">
+    <a href="/">Пользователь</a>
+    <a href="/operator.html">Оператор</a>
+  </div>
+  <h1>Оператор</h1>
+  <div id="online"></div>
+
+
+  <script>
+
+    const CHAR_RETURN = 13;
+    const socket = new WebSocket('ws://127.0.0.1:8000');
+    const online = document.getElementById('online');
+    const body = document.getElementById('body');
+
+    const deletechat = (key) => {
+      var a = document.getElementById(`${key}`);
+      if(a){
+        a.parentElement.remove();
+      }
+    }
+
+    const writeLine = (text, key=null, meskey = key) => {
+      if(!key){
+        const line = document.createElement('div');
+        line.innerHTML = `<p>${text}</p>`;
+        online.appendChild(line);
+      }else{
+        var ch = document.getElementById(`${key}`);
+        const line = document.createElement('div');
+        if(meskey.toString().indexOf("a") != -1){
+          line.setAttribute("class", "otnas");
+        }else{
+          line.setAttribute("class", "nam");
+        }
+
+        line.innerHTML = `<p>${text}</p>`;
+        ch.appendChild(line);
+      }
+    };
+
+    const newchat = (text, key) => {
+      const chatik = document.createElement('div');
+      chatik.setAttribute("class", "chatblock");
+      chatik.innerHTML = `<div class="chat" id="${key}"><div class="nam"><p>${text}</p></div></div>`;
+      const textar = document.createElement('textarea');
+      textar.setAttribute("id", `msg-${key}`);
+      textar.setAttribute("rows", `8`);
+      textar.setAttribute("cols", `80`);
+      textar.setAttribute("class", `msg`);
+      body.appendChild(chatik);
+      chatik.appendChild(textar);
+    };
+
+    socket.onopen = () => {
+      writeLine('Подключен');
+    };
+
+    socket.onclose = (event) => {
+      console.log(event);
+      writeLine('Закрыт');
+    };
+
+    var array = [];
+
+
+    socket.onmessage = (event) => {
+
+        var mes = JSON.parse(event.data);
+        if(mes.close == 'close'){
+          deletechat(mes.key);
+        }else{
+
+      if(array.indexOf(mes.key) != -1){
+        writeLine(mes.message, mes.key);
+      }else{
+
+         if(mes.key.toString().indexOf("a") != -1){
+           writeLine(mes.message, mes.idbl.slice(4), mes.key);
+         }else{
+           var arr = array.push(mes.key);
+           newchat(mes.message, mes.key);
+           var msg = document.getElementById(`msg-${mes.key}`);
+           msg.addEventListener('keydown', event => {
+             if (event.keyCode === CHAR_RETURN) {
+               var s = {idbl: event.target.id, messerv: msg.value}
+               s = JSON.stringify(s)
+               msg.value = '';
+               socket.send(s);
+             }
+           });
+         }
+      }
+    }
+    };
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="css/main.css">
+  <title>Чатик</title>
+</head>
+<body>
+  <div class="section top">
+    <a href="/">Пользователь</a>
+    <a href="/operator.html">Оператор</a>
+  </div>
+  <div class="chatblock">
+    <div class="chat" id="chat"></div>
+    <textarea id="msg" rows="8" cols="80"></textarea>
+  </div>
+
+  <script>
+
+    const CHAR_RETURN = 13;
+
+    const socket = new WebSocket('ws://127.0.0.1:8000');
+    const chat = document.getElementById('chat');
+    const msg = document.getElementById('msg');
+    msg.focus();
+
+    const writeLine = (text, key=null) => {
+      if(!key){
+        const line = document.createElement('div');
+        line.innerHTML = `<p>${text}</p>`;
+        chat.appendChild(line);
+      }else{
+        const line = document.createElement('div');
+        if(key.toString().indexOf("a") != -1){
+          line.setAttribute("class", "nam");
+        }else{
+          line.setAttribute("class", "otnas");
+        }
+        line.innerHTML = `<p>${text}</p>`;
+        chat.appendChild(line);
+      }
+    };
+
+    socket.onopen = () => {
+      writeLine('Подключен');
+    };
+
+    socket.onclose = () => {
+      writeLine('Закрыт');
+    };
+
+    socket.onmessage = event => {
+      var mes = JSON.parse(event.data)
+      writeLine(mes.message, mes.key);
+    };
+
+    msg.addEventListener('keydown', event => {
+      if (event.keyCode === CHAR_RETURN) {
+        var s = {idbl: event.target.id, messerv: msg.value}
+         s = JSON.stringify(s)
+        msg.value = '';
+        socket.send(s);
+      }
+    });
+
+  </script>
+</body>
+
+</html>

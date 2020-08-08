@@ -1,0 +1,50 @@
+body{
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.section{
+  width: 100%;
+  max-width: 1100px;
+}
+
+.section.top{
+  background: #898585;
+  display: flex;
+}
+.section.top a{
+  padding: 10px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+  font-family: Arial, sans-serif
+}
+.section.top a:hover{
+  text-decoration: underline;
+}
+.chatblock{
+  max-width: 599px;
+  width: 100%;
+}
+.chat{
+  height: 300px;
+  overflow-y: auto;
+  width: 100%
+}
+#msg{
+  padding: 0 10px;
+}
+.otnas{
+  text-align: left;
+  background: #fff0e0;
+}
+.otnas p, .nam p{
+  padding:5px;
+}
+.nam{
+  text-align: right;
+    background: #e2f1f6;
+}
